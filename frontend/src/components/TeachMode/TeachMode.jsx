@@ -1,7 +1,7 @@
 import Avatar from '../Avatar/Avatar';
 import './TeachMode.css';
 
-const TeachMode = ({ onExit }) => {
+const TeachMode = ({ onExit, player }) => {
   return (
     <div className="teach-mode animate-fade-in">
       <div className="teach-header">
@@ -43,10 +43,15 @@ const TeachMode = ({ onExit }) => {
         <div className="speed-controls">
           <span>Speed:</span>
           <div className="speed-options">
-            <button className="speed-btn">0.25x</button>
-            <button className="speed-btn">0.5x</button>
-            <button className="speed-btn">0.75x</button>
-            <button className="speed-btn active">1x</button>
+            {[0.25, 0.5, 0.75, 1].map(rate => (
+              <button 
+                key={rate}
+                className={`speed-btn ${player?.playbackRate === rate ? 'active' : ''}`}
+                onClick={() => player?.setPlaybackRate(rate)}
+              >
+                {rate}x
+              </button>
+            ))}
           </div>
         </div>
       </div>
