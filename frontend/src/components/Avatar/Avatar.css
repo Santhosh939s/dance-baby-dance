@@ -1,0 +1,61 @@
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+.avatar-label {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.25rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border: 1px solid var(--surface-border);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.instructor .avatar-label {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.mirror .avatar-label {
+  color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.avatar-model {
+  font-size: 8rem;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+/* Mock Dancing Animation */
+.dancing {
+  animation: mockDance 2s infinite alternate;
+}
+
+@keyframes mockDance {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(5deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-10px) rotate(-5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.movement-tooltip {
+  position: absolute;
+  bottom: -2rem;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  animation: fadeIn 0.2s ease;
+}

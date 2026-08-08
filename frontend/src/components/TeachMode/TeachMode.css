@@ -1,0 +1,158 @@
+.teach-mode {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.teach-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.teach-title {
+  font-size: 2rem;
+  margin: 0;
+  color: var(--secondary);
+  background: none;
+  -webkit-text-fill-color: var(--secondary);
+}
+
+.exit-btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.teach-stage {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8rem;
+  position: relative;
+}
+
+.teach-controls {
+  margin: 1rem 2rem 2rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(5, 5, 10, 0.8);
+}
+
+.step-info {
+  text-align: center;
+}
+
+.step-counter {
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.step-instruction {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.step-progress {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dot.completed {
+  background: var(--primary);
+}
+
+.dot.active {
+  background: var(--secondary);
+  transform: scale(1.2);
+  box-shadow: 0 0 10px var(--secondary-glow);
+}
+
+.playback-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
+  color: var(--text-main);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-muted);
+}
+
+.play-demo-btn {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  font-weight: 600;
+}
+
+.play-demo-btn:hover {
+  background: var(--primary);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.speed-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.speed-options {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+
+.speed-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.speed-btn:hover {
+  color: var(--text-main);
+}
+
+.speed-btn.active {
+  background: var(--surface);
+  color: var(--text-main);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,56 @@
+.dance-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  padding: 0 2rem 2rem;
+}
+
+.dance-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.stage-area {
+  flex: 1;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.controls-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.teach-me-btn {
+  font-size: 1.5rem;
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  color: #000;
+  box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.teach-me-btn:hover {
+  box-shadow: 0 0 30px var(--secondary-glow);
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .controls-area {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .teach-me-btn {
+    width: 100%;
+  }
+}
