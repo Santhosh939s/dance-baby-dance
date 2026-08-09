@@ -16,9 +16,20 @@ class MotionAdapter {
     this.currentAction = null;
     this.isPlaying = false;
     
+    // Default values, can be overridden when motion is loaded
+    this.fps = 60; 
+    this.numFrames = Infinity;
+    this.duration = Infinity;
+
     // We do NOT start the mixer's internal clock automatically.
     // The MusicDanceSynchronizer will manually advance this.mixer.setTime() 
     // to strictly enforce synchronization with YouTube.
+  }
+
+  setMotionMetadata(fps, numFrames, duration) {
+    this.fps = fps;
+    this.numFrames = numFrames;
+    this.duration = duration;
   }
 
   playMotion(motionName, fadeDuration = 0.5) {
@@ -56,7 +67,13 @@ class MotionAdapter {
    * This is called by the Synchronizer to snap the animation to a specific frame.
    */
   setMotionTime(absoluteTimeInSeconds) {
-    this.mixer.setTime(absoluteTimeInSeconds);
+    if (this.fps && this.numFrames) {
+      const frameIndex = Math.min(Math.floor(absoluteTimeInSeconds * this.fps), this.numFrames - 1);
+      const quantizedTime = frameIndex / this.fps;
+      this.mixer.setTime(quantizedTime);
+    } else {
+      this.mixer.setTime(absoluteTimeInSeconds);
+    }
   }
 
   /**

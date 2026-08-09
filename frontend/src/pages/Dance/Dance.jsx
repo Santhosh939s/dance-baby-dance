@@ -17,6 +17,11 @@ const Dance = () => {
   const [isTeachMode, setIsTeachMode] = useState(false);
   const [history, setHistory] = useState([]);
   
+  // AI States
+  const [aiState, setAiState] = useState('IDLE'); // IDLE, UPLOADING, GENERATING, APPLYING_MOTION, READY, ERROR
+  const [aiMode, setAiMode] = useState('replay'); // mint, replay, mock, fixture
+  const [aiMotionData, setAiMotionData] = useState(null);
+  
   const player = useYouTubePlayer();
   const { currentUser } = useAuth();
 
@@ -86,7 +91,7 @@ const Dance = () => {
       <div className="dance-content">
         
         <div className="stage-area">
-          <DanceStage playerState={player} />
+          <DanceStage playerState={player} aiMotionData={aiMotionData} aiMode={aiMode} />
           
           {/* History Sidebar */}
           {currentUser && history.length > 0 && (
@@ -135,10 +140,110 @@ const Dance = () => {
             onPlayPause={handlePlayPause} 
           />
           
+          <div className="ai-controls glass-panel" style={{ marginTop: '10px', padding: '15px' }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#00ffcc' }}>AI Choreography</h4>
+            
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+              <select 
+                value={aiMode} 
+                onChange={(e) => setAiMode(e.target.value)}
+                style={{ background: '#222', color: '#fff', padding: '5px', borderRadius: '4px', border: '1px solid #444' }}
+              >
+                <option value="mint">REAL (mint-main, ~2m)</option>
+                <option value="replay">REPLAY (last inference)</option>
+                <option value="mock">MOCK (dummy data)</option>
+                <option value="fixture">FIXTURE (static SMPL)</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input 
+                type="file" 
+                accept="audio/mp3,audio/wav"
+                id="audio-upload"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  
+                  if (aiMode === 'replay') {
+                    setAiState('GENERATING');
+                    try {
+                      const response = await fetch('http://localhost:5000/api/ai/generate?mode=replay', {
+                        method: 'POST'
+                      });
+                      const data = await response.json();
+                      if (data.success) {
+                        setAiState('APPLYING_MOTION');
+                        setAiMotionData(data);
+                        setAiState('READY');
+                      } else {
+                        setAiState('ERROR');
+                        alert(`Replay failed: ${data.error}`);
+                      }
+                    } catch (error) {
+                      setAiState('ERROR');
+                      alert('Error: ' + error.message);
+                    }
+                    return;
+                  }
+                  
+                  if (!file) return;
+                  
+                  setAiState('UPLOADING');
+                  const formData = new FormData();
+                  formData.append('audio_file', file);
+                  
+                  try {
+                    setAiState('GENERATING');
+                    const response = await fetch('http://localhost:5000/api/ai/generate', {
+                      method: 'POST',
+                      body: formData
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                      setAiState('APPLYING_MOTION');
+                      setAiMotionData(data); // Pass to DanceStage
+                      setAiState('READY');
+                    } else {
+                      setAiState('ERROR');
+                      alert(`Generation failed: ${data.error}`);
+                    }
+                  } catch (error) {
+                    setAiState('ERROR');
+                    alert('Error connecting to backend: ' + error.message);
+                  }
+                }}
+              />
+              
+              <label 
+                htmlFor="audio-upload" 
+                className="secondary-btn" 
+                style={{ 
+                  cursor: aiState === 'GENERATING' || aiState === 'UPLOADING' ? 'not-allowed' : 'pointer', 
+                  padding: '8px 12px', fontSize: '14px', borderRadius: '4px', background: '#333', color: '#fff',
+                  opacity: aiState === 'GENERATING' || aiState === 'UPLOADING' ? 0.5 : 1
+                }}
+              >
+                Upload & Generate
+              </label>
+
+              <span style={{ fontSize: '12px', color: '#aaa' }}>
+                {aiState === 'IDLE' && 'Waiting for audio...'}
+                {aiState === 'UPLOADING' && 'Uploading music...'}
+                {aiState === 'GENERATING' && 'Generating choreography...'}
+                {aiState === 'APPLYING_MOTION' && 'Applying choreography...'}
+                {aiState === 'READY' && 'AI choreography ready!'}
+                {aiState === 'ERROR' && 'Generation failed.'}
+              </span>
+            </div>
+          </div>
+          
           <button 
             className="primary-btn teach-me-btn"
             onClick={() => setIsTeachMode(true)}
             disabled={!videoId}
+            style={{ marginTop: '10px' }}
           >
             🎓 TEACH ME
           </button>

@@ -3,7 +3,7 @@ import Scene from './Scene';
 import DanceTimeline from './Animation/DanceTimeline';
 import './DanceStage.css';
 
-const DanceStage = ({ playerState }) => {
+const DanceStage = ({ playerState, aiMotionData, aiMode }) => {
   // Instantiate the timeline once per stage
   const danceTimeline = useMemo(() => {
     const timeline = new DanceTimeline();
@@ -21,7 +21,7 @@ const DanceStage = ({ playerState }) => {
   return (
     <div className="dance-stage">
       <div className="three-js-container" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-        <Scene playerState={playerState} danceTimeline={danceTimeline} />
+        <Scene playerState={playerState} danceTimeline={danceTimeline} aiMotionData={aiMotionData} aiMode={aiMode} />
       </div>
     </div>
   );

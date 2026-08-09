@@ -2,11 +2,33 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import AvatarController from './AvatarController';
 import MusicDanceSynchronizer from './synchronization/MusicDanceSynchronizer';
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
+import { SMPLRetargeter } from './Animation/retargeting/SMPLRetargeter';
+import { generateMockMotion } from './Animation/retargeting/MockMotionProvider';
+import { StaticSMPLFixture } from './Animation/retargeting/StaticSMPLFixture';
 
-const Scene = ({ playerState, danceTimeline }) => {
+const Scene = ({ playerState, danceTimeline, aiMotionData, aiMode }) => {
   const [maleAdapter, setMaleAdapter] = useState(null);
   const [femaleAdapter, setFemaleAdapter] = useState(null);
+
+  const normalizedMotion = useMemo(() => {
+    if (aiMode === 'mock') {
+      return generateMockMotion();
+    } else if (aiMode === 'fixture') {
+      return SMPLRetargeter.convert(
+        StaticSMPLFixture.smplPoses,
+        StaticSMPLFixture.smplTrans,
+        StaticSMPLFixture.fps
+      );
+    } else if ((aiMode === 'mint' || aiMode === 'replay') && aiMotionData) {
+      return SMPLRetargeter.convert(
+        aiMotionData.motion.poses,
+        aiMotionData.motion.trans,
+        aiMotionData.fps
+      );
+    }
+    return null;
+  }, [aiMode, aiMotionData]);
 
   return (
     <Canvas shadows camera={{ position: [0, 1.5, 4], fov: 50 }}>
@@ -33,14 +55,16 @@ const Scene = ({ playerState, danceTimeline }) => {
           <AvatarController 
             type="male" 
             isPlaying={playerState?.isPlaying} 
-            onAdapterReady={setMaleAdapter} 
+            onAdapterReady={setMaleAdapter}
+            normalizedMotion={normalizedMotion}
           />
         </group>
         <group position={[1, 0, 0]}>
           <AvatarController 
             type="female" 
             isPlaying={playerState?.isPlaying} 
-            onAdapterReady={setFemaleAdapter} 
+            onAdapterReady={setFemaleAdapter}
+            normalizedMotion={normalizedMotion}
           />
         </group>
       </Suspense>

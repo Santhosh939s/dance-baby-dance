@@ -1,56 +1,60 @@
-import { useEffect, useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 import MotionAdapter from './Animation/MotionAdapter';
-
+import { HumanoidRetargeter } from './Animation/retargeting/HumanoidRetargeter';
+import { generateMockMotion } from './Animation/retargeting/MockMotionProvider';
+import { SMPLRetargeter } from './Animation/retargeting/SMPLRetargeter';
+import { StaticSMPLFixture } from './Animation/retargeting/StaticSMPLFixture';
+import AvatarSkeletonInspector from './AvatarSkeletonInspector';
+import { Html } from '@react-three/drei';
 /**
- * AvatarController
- * 
- * Responsible for loading the 3D humanoid GLB, managing its skeleton,
+ * AvatarController is responsible for loading the 3D model, binding animations,
  * and passing the AnimationMixer to the MotionAdapter.
  */
-const AvatarController = ({ type, isPlaying, onAdapterReady }) => {
+const AvatarController = ({ type, isPlaying, onAdapterReady, normalizedMotion }) => {
   const group = useRef();
   
-  // NOTE: Phase 4 expects placeholder assets to be placed here.
-  // E.g. /dance-assets/avatars/male/male.glb
   const modelPath = `/dance-assets/avatars/${type}/${type}.glb`;
   
-  // Load the GLTF. If it doesn't exist, useGLTF will throw and Suspense will catch it.
-  // We wrap in a try-catch pattern at a higher level, but for now we assume the user places the file.
   const { scene, animations } = useGLTF(modelPath);
-  
-  // Extract animations from the loaded model
   const { actions, mixer } = useAnimations(animations, group);
   
-  // Initialize the MotionAdapter
   const adapterRef = useRef(null);
+  const retargeterRef = useRef(null);
+  const [boneData, setBoneData] = useState([]);
 
   useEffect(() => {
-    if (mixer && !adapterRef.current) {
-      // Create a MotionAdapter instance for this specific avatar's mixer
-      adapterRef.current = new MotionAdapter(mixer, actions);
+    if (scene && !retargeterRef.current) {
+      const retargeter = new HumanoidRetargeter(scene);
+      retargeterRef.current = retargeter;
+      setBoneData(retargeter.getBoneNames());
+    }
+  }, [scene]);
+
+  useEffect(() => {
+    if (mixer && !adapterRef.current && retargeterRef.current && normalizedMotion) {
+      adapterRef.current = new MotionAdapter(mixer, {});
       
       if (onAdapterReady) {
         onAdapterReady(adapterRef.current);
       }
       
-      // For Phase 4 verification, play a predefined animation if available
-      // The adapter abstracts away whether this is a predefined clip or generated motion
-      if (actions) {
-        const actionNames = Object.keys(actions);
-        if (actionNames.length > 0) {
-          adapterRef.current.playMotion(actionNames[0]);
-        }
-      }
+      // Retarget to THREE.AnimationClip
+      const clip = retargeterRef.current.createAnimationClip(normalizedMotion, 'AI_Dance');
+      const action = mixer.clipAction(clip);
+      
+      adapterRef.current.setMotionMetadata(normalizedMotion.fps, normalizedMotion.frames.length, normalizedMotion.duration);
+      
+      adapterRef.current.actions['AI_Dance'] = action;
+      adapterRef.current.playMotion('AI_Dance');
     }
-  }, [mixer, actions, onAdapterReady]);
+  }, [mixer, onAdapterReady, normalizedMotion]); 
 
   // Synchronize playback state
   useEffect(() => {
     if (adapterRef.current) {
       if (isPlaying) {
-        adapterRef.current.resumeMotion();
+        adapterRef.current.playMotion();
       } else {
         adapterRef.current.pauseMotion();
       }
@@ -60,13 +64,15 @@ const AvatarController = ({ type, isPlaying, onAdapterReady }) => {
   return (
     <group ref={group} dispose={null}>
       <primitive object={scene} />
+      
+      {/* Development Skeleton Inspector UI (Rendered as HTML overlay) */}
+      <Html position={type === 'male' ? [-1, 2, 0] : [1, 2, 0]} center zIndexRange={[100, 0]}>
+        <div className={`skeleton-inspector-container ${type}`}>
+          <AvatarSkeletonInspector boneData={boneData} avatarName={type} />
+        </div>
+      </Html>
     </group>
   );
 };
-
-// Preload to avoid hiccups
-// We comment this out because if the files don't exist yet, it'll crash the dev server startup loop
-// useGLTF.preload('/dance-assets/avatars/male/male.glb');
-// useGLTF.preload('/dance-assets/avatars/female/female.glb');
 
 export default AvatarController;
