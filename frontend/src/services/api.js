@@ -16,3 +16,14 @@ export const searchYouTube = async (query) => {
     throw error;
   }
 };
+
+export const checkYouTubeConnection = async (uid) => {
+  try {
+    const response = await api.get(`/oauth/status?uid=${encodeURIComponent(uid)}`);
+    return response.data.connected;
+  } catch (error) {
+    console.error('Error checking YouTube connection:', error);
+    return false;
+  }
+};
+

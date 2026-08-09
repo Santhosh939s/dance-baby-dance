@@ -86,7 +86,7 @@ const Dance = () => {
       <div className="dance-content">
         
         <div className="stage-area">
-          <DanceStage isPlaying={player.isPlaying} />
+          <DanceStage playerState={player} />
           
           {/* History Sidebar */}
           {currentUser && history.length > 0 && (
