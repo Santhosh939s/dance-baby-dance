@@ -58,8 +58,18 @@ const MusicPlayer = ({ player, onPlayPause }) => {
       
       <div className="player-progress">
         <span className="time">{formatTime(currentTime)}</span>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+        <div className="progress-bar-container">
+          <input 
+            type="range" 
+            min="0" 
+            max={player.duration || 100}
+            value={currentTime}
+            onChange={(e) => player.seekTo(parseFloat(e.target.value))}
+            className="seek-slider"
+            style={{ 
+              background: `linear-gradient(to right, var(--primary) ${progressPercent}%, rgba(255, 255, 255, 0.1) ${progressPercent}%)` 
+            }}
+          />
         </div>
         <span className="time">{formatTime(player.duration)}</span>
       </div>

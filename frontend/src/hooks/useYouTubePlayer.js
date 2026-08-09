@@ -12,12 +12,20 @@ export const useYouTubePlayer = () => {
     isReady: false,
   });
 
-  // Called when react-youtube onReady fires
   const onReady = useCallback((event) => {
     playerRef.current = event.target;
+    let videoTitle = 'Unknown Title';
+    try {
+      const data = event.target.getVideoData();
+      if (data && data.title) videoTitle = data.title;
+    } catch (e) {
+      console.warn("Could not fetch video data", e);
+    }
+
     setPlayerState(prev => ({
       ...prev,
       isReady: true,
+      title: videoTitle,
       duration: event.target.getDuration(),
       playbackRate: event.target.getPlaybackRate()
     }));
